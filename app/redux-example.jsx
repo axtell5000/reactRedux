@@ -52,10 +52,23 @@ console.log('Starting Redux example');
 // console.log(startingValue);
 // console.log(res);
 
+// In the reducer we work with the state
 var reducer = (state = {name: 'Anonymous'}, action) => {
   //state = state ||{name: 'Anonymous'}; //ES5 way
 
-  return state;
+  console.log('New action', action);
+
+  switch (action.type){
+    case 'CHANGE_NAME':
+      return {
+        ...state,
+        name: action.name
+      };
+
+    default:
+      return state;
+  }
+
 }
 
 var store = redux.createStore(reducer);
@@ -63,4 +76,10 @@ var store = redux.createStore(reducer);
 var currentState = store.getState();
 console.log('currentState', currentState);
 
+store.dispatch({
+  type: 'CHANGE_NAME',
+  name: 'Stephen'
+});
+
+console.log('Name should be Stephen', store.getState());
 
