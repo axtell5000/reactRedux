@@ -71,15 +71,35 @@ var reducer = (state = {name: 'Anonymous'}, action) => {
 
 }
 
-var store = redux.createStore(reducer);
+//that long piece of code is to get the redux chrome dev tool to work, you need this piece of code, plus you cannot see this tool from the console
+var store = redux.createStore(reducer, Redux.compose(window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()));
 
 var currentState = store.getState();
 console.log('currentState', currentState);
+
+//Subscribe to changes, takes a function that runs everytime a state changes
+var unsubscribe = store.subscribe(() => {
+  var state = store.getState();
+
+  console.log('Name is ', state.name);
+
+  document.getElementById('app').innerHTML = state.name;
+
+});
+
+// unsubscribe(); //when calling unsubscribe it stops the listening for changes
+
 
 store.dispatch({
   type: 'CHANGE_NAME',
   name: 'Stephen'
 });
 
-console.log('Name should be Stephen', store.getState());
+
+store.dispatch({
+  type: 'CHANGE_NAME',
+  name: 'Ignatius'
+});
+
+
 

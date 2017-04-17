@@ -19,12 +19,12 @@ require('style!css!sass!applicationStyles');
 
 
 //<Router> is available because of our require above
-ReactDOM.render(
-
-  <p>Final Boilerplate</p>,
-
-  document.getElementById('app')
-);
+// ReactDOM.render(
+//
+//   <p>Final Boilerplate</p>,
+//
+//   document.getElementById('app')
+// );
 
 //require('./redux-example.jsx');
 require('./redux-todo-example.jsx');

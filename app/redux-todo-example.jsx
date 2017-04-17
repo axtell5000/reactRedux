@@ -22,7 +22,18 @@ var reducer = (state = stateDefault, action) => {
   }
 };
 
-var store = Redux.createStore(reducer);
+var store = Redux.createStore(reducer, Redux.compose(window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()));
+
+//Subscribe to changes, takes a function that runs everytime a state changes
+  store.subscribe(() => {
+    var state = store.getState();
+
+    document.getElementById('app').innerHTML = state.searchText;
+
+});
+
+// unsubscribe(); //when calling unsubscribe it stops the listening for changes
+
 
 console.log('currentState:', store.getState());
 
@@ -32,4 +43,18 @@ store.dispatch({
   searchText: 'I keeps it real'
 });
 
-console.log('Search text should keeps it real', store.getState());
+
+
+store.dispatch({
+  type: 'CHANGE_SEARCH_TEXT',
+  searchText: 'This goes out to all my homies in Battlecreek'
+});
+
+
+
+store.dispatch({
+  type: 'CHANGE_SEARCH_TEXT',
+  searchText: 'I drop it like its hot yo'
+});
+
+
