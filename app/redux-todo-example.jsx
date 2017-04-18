@@ -9,6 +9,7 @@ var stateDefault = {
 };
 
 
+//Have to have default values
 var reducer = (state = stateDefault, action) => {
   switch (action.type){
     case 'CHANGE_SEARCH_TEXT':
