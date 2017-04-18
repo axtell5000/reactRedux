@@ -64,63 +64,61 @@ var nextMovieId = 1;
 
 // In the reducer we work with the state
 //Have to have default values
-var reducer = (state = stateDefault, action) => {
-  //state = state ||{name: 'Anonymous'}; //ES5 way
 
-  console.log('New action', action);
-
-  switch (action.type){
+var nameReducer = (state = 'Anonymous', action) => {
+  switch (action.type) {
     case 'CHANGE_NAME':
-      return {
-        ...state,
-        name: action.name
-      };
-
-    case 'ADD_HOBBY':
-      return {
-        ...state,
-        hobbies: [
-          ...state.hobbies,
-          {
-            id: nextHobbyId++,
-            hobby: action.hobby
-          }
-        ]
-      };
-
-    case 'REMOVE_HOBBY':
-      return {
-        ...state,
-        hobbies: state.hobbies.filter(function (hobby){ //remember filter keeps the element that returns true based on our condition
-          return hobby.id !== action.id;
-        })
-      };
-    case 'ADD_MOVIE':
-      return {
-        ...state,
-        movies: [
-          ...state.movies,
-          {
-            id: nextMovieId++,
-            title: action.title,
-            genre: action.genre
-          }
-        ]
-      };
-
-    case 'REMOVE_MOVIE':
-      return {
-        ...state,
-        movies: state.movies.filter(function (movie){ //remember filter keeps the element that returns true based on our condition
-          return movie.id !== action.id;
-        })
-      };
-
+      return action.name;
     default:
       return state;
   }
+};
 
-}
+var hobbiesReducer = (state = [], action) => {
+  switch (action.type) {
+    case 'ADD_HOBBY':
+      return [
+        ...state,
+        {
+          id: nextHobbyId++,
+          hobby: action.hobby
+        }
+      ];
+    case 'REMOVE_HOBBY':
+      return state.filter(function (hobby){ //remember filter keeps the element that returns true based on our condition
+        return hobby.id !== action.id;
+      });
+    default:
+      return state;
+  }
+};
+
+var moviesReducer = (state = [], action) => {
+  switch (action.type) {
+    case 'ADD_MOVIE':
+      return [
+        ...state,
+        {
+          id: nextMovieId++,
+          title: action.title,
+          genre: action.genre
+        }
+      ];
+    case 'REMOVE_MOVIE':
+      return state.filter(function (movie){ //remember filter keeps the element that returns true based on our condition
+        return movie.id !== action.id;
+      });
+    default:
+      return state;
+  }
+};
+
+//BIG NOTE: When using combineReducers it uses strings instead of objects
+var reducer = Redux.combineReducers({//takes an object wit hkey value pairs with the attributes/properties it must manage
+  name: nameReducer, //the name state is going to be managed by the nameReducer
+  hobbies: hobbiesReducer,
+  movies: moviesReducer
+});
 
 //that long piece of code is to get the redux chrome dev tool to work, you need this piece of code, plus you cannot see this tool from the console
 var store = Redux.createStore(reducer, Redux.compose(window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()));
