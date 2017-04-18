@@ -1,4 +1,5 @@
 var Redux = require('redux');
+var axios = require('axios');
 
 console.log('Starting Redux example');
 
@@ -52,19 +53,13 @@ console.log('Starting Redux example');
 // console.log(startingValue);
 // console.log(res);
 
-//Setting up a neater default value
-var stateDefault = {
-  name: 'Anonymous',
-  hobbies: [],
-  movies: []
-};
 
-var nextHobbyId = 1;
-var nextMovieId = 1;
 
 // In the reducer we work with the state
 //Have to have default values
 
+//Name reducer and action generators
+// ----------------------------------
 var nameReducer = (state = 'Anonymous', action) => {
   switch (action.type) {
     case 'CHANGE_NAME':
@@ -73,6 +68,18 @@ var nameReducer = (state = 'Anonymous', action) => {
       return state;
   }
 };
+
+//action generator
+var changeName = (name) => {
+  return {
+    type: 'CHANGE_NAME',
+    name //Is a ES6 shortcut for doing name: name
+  };
+};
+
+//Hobbies reducer and action generators
+// ----------------------------------
+var nextHobbyId = 1;
 
 var hobbiesReducer = (state = [], action) => {
   switch (action.type) {
@@ -92,6 +99,25 @@ var hobbiesReducer = (state = [], action) => {
       return state;
   }
 };
+
+//action generator
+var addHobby = (hobby) => {
+  return {
+    type: 'ADD_HOBBY',
+    hobby //Is a ES6 shortcut for doing hobby: hobby
+  };
+};
+
+var removeHobby = (id) => {
+  return {
+    type: 'REMOVE_HOBBY',
+    id //Is a ES6 shortcut for doing id: id
+  };
+};
+
+//Movie reducer and action generators
+// ----------------------------------
+var nextMovieId = 1;
 
 var moviesReducer = (state = [], action) => {
   switch (action.type) {
@@ -113,11 +139,75 @@ var moviesReducer = (state = [], action) => {
   }
 };
 
+//action generator
+var addMovie = (title, genre) => {
+  return {
+    type: 'ADD_MOVIE',
+    title, //Is a ES6 shortcut for doing title: title
+    genre  //Is a ES6 shortcut for doing genre: genre
+  };
+};
+
+var removeMovie = (id) => {
+  return {
+    type: 'REMOVE_MOVIE',
+    id //Is a ES6 shortcut for doing id: id
+  };
+};
+
+//Map reducer and action generators
+// ----------------------------------
+
+var mapReducer = (state = {isFetching: false, url: undefined}, action) => {
+  switch (action.type){
+    case 'START_LOCATION_FETCH':
+      return {
+        isFetching: true,
+        url: undefined
+      };
+
+    case 'COMPLETE_LOCATION_FETCH':
+      return {
+        isFetching: false,
+        url: action.url
+      };
+
+    default:
+       return state;
+  }
+};
+
+//Action generator
+var startLocationFetch = () => {
+  return {
+    type: 'START_LOCATION_FETCH'
+  };
+};
+
+var completeLocationFetch = (url) => {
+  return {
+    type: 'COMPLETE_LOCATION_FETCH',
+    url
+  };
+};
+
+var fetchLocation = () => {
+  store.dispatch(startLocationFetch());
+
+  axios.get('http://ipinfo.io').then(function(res){
+    var loc = res.data.loc;
+    var baseUrl = 'https://maps.google.com?q=';
+
+    store.dispatch(completeLocationFetch(baseUrl + loc));
+  });
+};
+
 //BIG NOTE: When using combineReducers it uses strings instead of objects
-var reducer = Redux.combineReducers({//takes an object wit hkey value pairs with the attributes/properties it must manage
+var reducer = Redux.combineReducers({//takes an object with key value pairs with the attributes/properties it must manage
   name: nameReducer, //the name state is going to be managed by the nameReducer
   hobbies: hobbiesReducer,
-  movies: moviesReducer
+  movies: moviesReducer,
+  map: mapReducer
 });
 
 //that long piece of code is to get the redux chrome dev tool to work, you need this piece of code, plus you cannot see this tool from the console
@@ -130,55 +220,34 @@ console.log('currentState', currentState);
 var unsubscribe = store.subscribe(() => {
   var state = store.getState();
 
-  console.log('Name is ', state.name);
+  console.log('New state', store.getState());
 
-  document.getElementById('app').innerHTML = state.name;
+  if (state.map.isFetching) {
+    document.getElementById('app').innerHTML = 'Loading...';
+  } else if (state.map.url) {
+    document.getElementById('app').innerHTML = '<a href="' + state.map.url + '" target="_blank">View Your Location</a>';
+  }
 
 });
 
 // unsubscribe(); //when calling unsubscribe it stops the listening for changes
 
+fetchLocation();
 
-store.dispatch({
-  type: 'CHANGE_NAME',
-  name: 'Stephen'
-});
+store.dispatch(changeName('Stephen'));
 
-store.dispatch({
-  type: 'ADD_HOBBY',
-  hobby: 'running'
-});
+store.dispatch(addHobby('running'));
 
-store.dispatch({
-  type: 'ADD_HOBBY',
-  hobby: 'walking'
-});
+store.dispatch(addHobby('walking'));
 
-store.dispatch({
-  type: 'REMOVE_HOBBY',
-  id: 2
-});
+store.dispatch(removeHobby(2));
 
-store.dispatch({
-  type: 'CHANGE_NAME',
-  name: 'Ignatius'
-});
+store.dispatch(changeName('Ignatius'));
 
-store.dispatch({
-  type: 'ADD_MOVIE',
-  title: 'Mad Max',
-  genre: 'Action'
-});
+store.dispatch(addMovie('Mad Max', 'Action'));
 
-store.dispatch({
-  type: 'ADD_MOVIE',
-  title: 'It',
-  genre: 'Horror'
-});
+store.dispatch(addMovie('It', 'Horror'));
 
-store.dispatch({
-  type: 'REMOVE_MOVIE',
-  id: 1
-});
+store.dispatch(removeMovie(1));
 
 
